@@ -60,7 +60,7 @@ public class Config {
                 i++;
             }
             else if(args[i].equals("-a")) {
-                shouldAppend = false;
+                shouldAppend = true;
             }
             else if(args[i].equals("-s")) {
                 showStats = true;

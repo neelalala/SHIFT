@@ -2,6 +2,9 @@ package org.example;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class FilterUtility {
     public static void main(String[] args) {
@@ -21,7 +24,64 @@ public class FilterUtility {
                 System.err.println(e.getMessage());
             }
         }
+        String line;
 
+        FileWriter integersWriter = null;
+        FileWriter floatsWriter = null;
+        FileWriter stringWriter = null;
+
+        Map<DataInterpriter.Type, FileWriter> writers = new HashMap<>();
+
+        writers.put(DataInterpriter.Type.INT, integersWriter);
+        writers.put(DataInterpriter.Type.FLOAT, floatsWriter);
+        writers.put(DataInterpriter.Type.STRING, stringWriter);
+
+        Map<DataInterpriter.Type, String> files = new HashMap<>();
+
+        files.put(DataInterpriter.Type.INT, config.getPrefix() + "integers.txt");
+        files.put(DataInterpriter.Type.FLOAT, config.getPrefix() + "floats.txt");
+        files.put(DataInterpriter.Type.STRING, config.getPrefix() + "strings.txt");
+
+        while(!inputFiles.isEmpty()) {
+            Iterator<BufferedReader> iterator = inputFiles.iterator();
+            while(iterator.hasNext()) {
+                BufferedReader reader = iterator.next();
+                try {
+                    line = reader.readLine();
+                    if(line != null) {
+                        DataInterpriter.Type type = DataInterpriter.dataType(line);
+                        if(writers.get(type) != null) {
+                            writers.get(type).write(line + "\n");
+                        }
+                        else {
+                            try {
+                                writers.put(type, new FileWriter(files.get(type), config.getShouldAppend()));
+                                writers.get(type).write(line + "\n");
+                                System.out.println(type);
+                                System.out.println(line);
+                            } catch (IOException e) {
+                                System.err.println(e.getMessage());
+                            }
+                        }
+                    }
+                    else {
+                        reader.close();
+                        iterator.remove();
+                    }
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
+        for(FileWriter writer : writers.values()) {
+            if(writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
     }
 
     private static void printUsage() {

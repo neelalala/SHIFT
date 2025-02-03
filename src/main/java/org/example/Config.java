@@ -56,7 +56,7 @@ public class Config {
                 if(i+1 > args.length) {
                     throw new IllegalArgumentException("Prefix is not specified after -p");
                 }
-                prefix = args[i + 1];
+                prefix = args[i + 1] + "_";
                 i++;
             }
             else if(args[i].equals("-a")) {

@@ -26,21 +26,15 @@ public class FilterUtility {
         }
         String line;
 
-        FileWriter integersWriter = null;
-        FileWriter floatsWriter = null;
-        FileWriter stringWriter = null;
-
         Map<DataInterpriter.Type, FileWriter> writers = new HashMap<>();
-
-        writers.put(DataInterpriter.Type.INT, integersWriter);
-        writers.put(DataInterpriter.Type.FLOAT, floatsWriter);
-        writers.put(DataInterpriter.Type.STRING, stringWriter);
 
         Map<DataInterpriter.Type, String> files = new HashMap<>();
 
-        files.put(DataInterpriter.Type.INT, config.getPrefix() + "integers.txt");
-        files.put(DataInterpriter.Type.FLOAT, config.getPrefix() + "floats.txt");
-        files.put(DataInterpriter.Type.STRING, config.getPrefix() + "strings.txt");
+        files.put(DataInterpriter.Type.INT, config.getOutputPath() + config.getPrefix() + "integers.txt");
+        files.put(DataInterpriter.Type.FLOAT, config.getOutputPath() + config.getPrefix() + "floats.txt");
+        files.put(DataInterpriter.Type.STRING, config.getOutputPath() + config.getPrefix() + "strings.txt");
+
+        DataStats stats = new DataStats();
 
         while(!inputFiles.isEmpty()) {
             Iterator<BufferedReader> iterator = inputFiles.iterator();
@@ -52,35 +46,38 @@ public class FilterUtility {
                         DataInterpriter.Type type = DataInterpriter.dataType(line);
                         if(writers.get(type) != null) {
                             writers.get(type).write(line + "\n");
+                            stats.add(type, line);
                         }
                         else {
                             try {
                                 writers.put(type, new FileWriter(files.get(type), config.getShouldAppend()));
                                 writers.get(type).write(line + "\n");
-                                System.out.println(type);
-                                System.out.println(line);
+                                stats.add(type, line);
                             } catch (IOException e) {
-                                System.err.println(e.getMessage());
+                                System.err.println("Problem with creating output file: " + e.getMessage());
                             }
                         }
                     }
                     else {
-                        reader.close();
+                        reader.close(); // не закрывает ссылку
                         iterator.remove();
                     }
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    System.err.println("Couldn't read line from input file: " + e.getMessage());
                 }
             }
         }
         for(FileWriter writer : writers.values()) {
             if(writer != null) {
                 try {
-                    writer.close();
+                    writer.close(); // не закрывает ссылку
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    System.err.println("Couldn't close output file: " + e.getMessage());
                 }
             }
+        }
+        if(config.getShowStats()) {
+            stats.printStats(config.getFullStats());
         }
     }
 

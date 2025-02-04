@@ -12,7 +12,7 @@ public class FilterUtility {
         try {
             config.parseArgs(args);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Couldn't parse command: " + e.getMessage());
             printUsage();
             return;
         }
@@ -21,7 +21,7 @@ public class FilterUtility {
             try {
                 inputFiles.add(new BufferedReader(new FileReader(path)));
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println("Couldn't open input file: " + e.getMessage());
             }
         }
         String line;
@@ -59,7 +59,7 @@ public class FilterUtility {
                         }
                     }
                     else {
-                        reader.close(); // не закрывает ссылку
+                        reader.close();
                         iterator.remove();
                     }
                 } catch (IOException e) {
@@ -67,10 +67,11 @@ public class FilterUtility {
                 }
             }
         }
+
         for(FileWriter writer : writers.values()) {
             if(writer != null) {
                 try {
-                    writer.close(); // не закрывает ссылку
+                    writer.close();
                 } catch (IOException e) {
                     System.err.println("Couldn't close output file: " + e.getMessage());
                 }

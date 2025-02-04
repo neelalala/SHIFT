@@ -15,28 +15,22 @@ public class DataStats {
     private double intAvg;
     private double floatAvg;
 
-    private boolean intAdded;
-    private boolean floatAdded;
-    private boolean stringAdded;
-
     public DataStats() {
         intCount = 0;
-        floatCount = 0;
-        stringCount = 0;
-        intMin = 0;
-        floatMin = 0;
-        stringMin = 0;
-        intMax = 0;
-        floatMax = 0;
-        stringMax = 0;
+        intMin = Long.MAX_VALUE;
+        intMax = Long.MIN_VALUE;
         intSum = 0;
-        floatSum = 0;
         intAvg = 0;
+
+        floatCount = 0;
+        floatMin = Double.MAX_VALUE;
+        floatMax = Double.MIN_VALUE;
+        floatSum = 0;
         floatAvg = 0;
 
-        intAdded = false;
-        floatAdded = false;
-        stringAdded = false;
+        stringCount = 0;
+        stringMin = Integer.MAX_VALUE;
+        stringMax = Integer.MIN_VALUE;
     }
 
     public void add(DataInterpriter.Type type, String string) {
@@ -66,12 +60,6 @@ public class DataStats {
         intSum += value;
 
         intAvg = intSum/intCount;
-
-        if (!intAdded) {
-            intMax = intMin = intSum = value;
-            intAvg = (double)value;
-            intAdded = true;
-        }
     }
 
     public void addFloat(double value) {
@@ -85,12 +73,6 @@ public class DataStats {
         floatSum += value;
 
         floatAvg = floatSum/floatCount;
-
-        if (!floatAdded) {
-            floatMax = floatMin = floatSum = value;
-            floatAvg = value;
-            floatAdded = true;
-        }
     }
 
     public void addString(String value) {
@@ -100,11 +82,6 @@ public class DataStats {
         }
         if (value.length() > stringMax) {
             stringMax = value.length();
-        }
-
-        if(!stringAdded) {
-            stringMax = stringMin = value.length();
-            stringAdded = true;
         }
     }
 

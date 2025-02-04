@@ -67,7 +67,7 @@ public class Config {
                 fullStats = false;
             }
             else if(args[i].equals("-f")) {
-                shouldAppend = true;
+                showStats = true;
                 fullStats = true;
             }
             else {

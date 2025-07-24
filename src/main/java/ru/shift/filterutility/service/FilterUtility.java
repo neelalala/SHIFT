@@ -1,23 +1,29 @@
-package org.example;
+package ru.shift.filterutility.service;
+
+import ru.shift.filterutility.model.DataStats;
+import ru.shift.filterutility.config.Config;
+import ru.shift.filterutility.model.DataType;
+import ru.shift.filterutility.model.ExitCode;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
+
+/**
+ *
+ * Filter lines in specified files by their data types.
+ * @author Semen Dutkin s.dutkin@g.nsu.ru
+ */
 public class FilterUtility {
-    public static void main(String[] args) {
-        Config config = new Config();
-        try {
-            config.parseArgs(args);
-        } catch (Exception e) {
-            System.err.println("Couldn't parse command: " + e.getMessage());
-            printUsage();
-            return;
-        }
-        ArrayList<BufferedReader> inputFiles = new ArrayList<>();
-        for(String path : config.getInputFiles()) {
+    private Config config = new Config();
+
+
+
+    public void filter(String[] args) {
+        configure(args);
+
+        List<BufferedReader> inputFiles = new ArrayList<>();
+        for(String path : config.getInputFileNames()) {
             try {
                 inputFiles.add(new BufferedReader(new FileReader(path)));
             } catch (Exception e) {
@@ -26,13 +32,13 @@ public class FilterUtility {
         }
         String line;
 
-        Map<DataInterpriter.Type, FileWriter> writers = new HashMap<>();
+        Map<DataType, FileWriter> writers = new HashMap<>();
 
-        Map<DataInterpriter.Type, String> files = new HashMap<>();
+        Map<DataType, String> files = new HashMap<>();
 
-        files.put(DataInterpriter.Type.INT, config.getOutputPath() + config.getPrefix() + "integers.txt");
-        files.put(DataInterpriter.Type.FLOAT, config.getOutputPath() + config.getPrefix() + "floats.txt");
-        files.put(DataInterpriter.Type.STRING, config.getOutputPath() + config.getPrefix() + "strings.txt");
+        files.put(DataType.INT, config.getOutputPath() + config.getPrefix() + "integers.txt");
+        files.put(DataType.FLOAT, config.getOutputPath() + config.getPrefix() + "floats.txt");
+        files.put(DataType.STRING, config.getOutputPath() + config.getPrefix() + "strings.txt");
 
         DataStats stats = new DataStats();
 
@@ -43,7 +49,7 @@ public class FilterUtility {
                 try {
                     line = reader.readLine();
                     if(line != null) {
-                        DataInterpriter.Type type = DataInterpriter.dataType(line);
+                        DataType type = DataInterpriter.getType(line);
                         if(writers.get(type) != null) {
                             writers.get(type).write(line + "\n");
                             stats.add(type, line);
@@ -82,13 +88,24 @@ public class FilterUtility {
         }
     }
 
+    private void configure(String[] args) {
+        try {
+            config.parseArgs(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Couldn't parse arguments, error occurred:" + e.getMessage());
+            printUsage();
+            System.exit(ExitCode.BAD_ARGS);
+        }
+
+    }
+
     private static void printUsage() {
-        System.out.println("Использование: java FilterUtility [опции] inputFile1 inputFile2 ...");
+        System.out.println("Использование: java -jar FilterUtility.jar [опции] inputFile1 inputFile2 ...");
         System.out.println("Опции:");
         System.out.println("    -o <output_dir>     задаёт папку для результатов (по умолчанию текущая папка)");
         System.out.println("    -p <prefix>         задаёт префикс для имён выходных файлов");
         System.out.println("    -a                  режим добавления в существующие файлы");
         System.out.println("    -s                  краткая статистика (только количество)");
-        System.out.println("    -f                  полная статистика (для чисел: min, max, сумма, среднее; для строк: длина минимальной и максимальной строки)");
+        System.out.println("    -f                  полная статистика (для чисел: min, max, сумма, среднее; для строк: длины минимальной и максимальной строк)");
     }
 }

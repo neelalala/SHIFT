@@ -24,7 +24,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.example.FilterUtility</mainClass>
+                            <mainClass>ru.shift.filterutility.service.FilterUtility</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

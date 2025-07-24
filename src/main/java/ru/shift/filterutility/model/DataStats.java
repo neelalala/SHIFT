@@ -1,19 +1,24 @@
-package org.example;
+package ru.shift.filterutility.model;
 
 public class DataStats {
+    // Short stats
     private int intCount;
     private int floatCount;
     private int stringCount;
+
+    // Full stats
     private long intMin;
-    private double floatMin;
-    private int stringMin;
     private long intMax;
-    private double floatMax;
-    private int stringMax;
     private long intSum;
-    private double floatSum;
     private double intAvg;
+
+    private double floatMin;
+    private double floatMax;
+    private double floatSum;
     private double floatAvg;
+
+    private int stringLengthMin;
+    private int stringLengthMax;
 
     public DataStats() {
         intCount = 0;
@@ -29,11 +34,11 @@ public class DataStats {
         floatAvg = 0;
 
         stringCount = 0;
-        stringMin = Integer.MAX_VALUE;
-        stringMax = Integer.MIN_VALUE;
+        stringLengthMin = Integer.MAX_VALUE;
+        stringLengthMax = Integer.MIN_VALUE;
     }
 
-    public void add(DataInterpriter.Type type, String string) {
+    public void add(DataType type, String string) {
         switch (type) {
             case INT:
                 long intVal = Long.parseLong(string);
@@ -59,7 +64,7 @@ public class DataStats {
         }
         intSum += value;
 
-        intAvg = intSum/intCount;
+        intAvg = (double) intSum / intCount;
     }
 
     public void addFloat(double value) {
@@ -72,16 +77,16 @@ public class DataStats {
         }
         floatSum += value;
 
-        floatAvg = floatSum/floatCount;
+        floatAvg = floatSum / floatCount;
     }
 
     public void addString(String value) {
         stringCount++;
-        if (value.length() < stringMin) {
-            stringMin = value.length();
+        if (value.length() < stringLengthMin) {
+            stringLengthMin = value.length();
         }
-        if (value.length() > stringMax) {
-            stringMax = value.length();
+        if (value.length() > stringLengthMax) {
+            stringLengthMax = value.length();
         }
     }
 
@@ -101,8 +106,8 @@ public class DataStats {
             System.out.println("\tSum: " + floatSum);
             System.out.println("Strings: ");
             System.out.println("\tCount:" + stringCount);
-            System.out.println("\tMinimal length: " + stringMin);
-            System.out.println("\tMaximal length: " + stringMax);
+            System.out.println("\tMinimal length: " + stringLengthMin);
+            System.out.println("\tMaximal length: " + stringLengthMax);
         }
         else {
             System.out.println("Integers count: " + intCount);

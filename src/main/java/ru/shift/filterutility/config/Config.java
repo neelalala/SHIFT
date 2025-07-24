@@ -67,6 +67,7 @@ public class Config {
                 case "-f":
                     showStats = true;
                     fullStats = true;
+                    break;
                 default:
                     inputFileNames.add(args[i]);
             }

@@ -1,5 +1,7 @@
 package ru.shift.filterutility.config;
 
+import ru.shift.filterutility.exception.NoInputFilesException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class Config {
      * @param args program arguments.
      * Allowed options: -o path, -p prefix, -a to append info into file, -s to show short stats, -f to show full stats
      */
-    public void parseArgs(String[] args) throws IllegalArgumentException {
+    public void parseArgs(String[] args) throws IllegalArgumentException, NoInputFilesException {
         for(int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-o":
@@ -70,7 +72,7 @@ public class Config {
             }
         }
         if(inputFileNames.isEmpty()) {
-            throw new IllegalArgumentException("No input files specified");
+            throw new NoInputFilesException("No input files specified");
         }
     }
 }

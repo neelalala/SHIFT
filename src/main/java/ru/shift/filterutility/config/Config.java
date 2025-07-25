@@ -40,20 +40,22 @@ public class Config {
     /**
      *
      * @param args program arguments.
-     * Allowed options: -o path, -p prefix, -a to append info into file, -s to show short stats, -f to show full stats
+     * Allowed options: -o path, -p prefix, -a to append info into file, -s to show short stats, -f to show full stats.
+     * Any other argument will assume to be input file name.
      */
     public void parseArgs(String[] args) throws IllegalArgumentException, NoInputFilesException {
         for(int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-o":
-                    if(i+1 > args.length) {
+                    if (i+1 >= args.length) {
                         throw new IllegalArgumentException("Path is not specified after -o");
                     }
-                    outputPath = args[i + 1] + "/";
+                    if (args[i+1].endsWith("/")) outputPath = args[i + 1];
+                    else outputPath = args[i + 1] + "/";
                     i++;
                     break;
                 case "-p":
-                    if(i+1 > args.length) {
+                    if (i+1 >= args.length) {
                         throw new IllegalArgumentException("Prefix is not specified after -p");
                     }
                     prefix = args[i + 1];
@@ -74,7 +76,7 @@ public class Config {
                     inputFileNames.add(args[i]);
             }
         }
-        if(inputFileNames.isEmpty()) {
+        if (inputFileNames.isEmpty()) {
             throw new NoInputFilesException("No input files specified");
         }
     }

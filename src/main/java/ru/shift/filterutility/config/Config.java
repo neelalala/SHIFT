@@ -50,12 +50,14 @@ public class Config {
                         throw new IllegalArgumentException("Path is not specified after -o");
                     }
                     outputPath = "." + args[i + 1] + "/";
+                    i++;
                     break;
                 case "-p":
                     if(i+1 > args.length) {
                         throw new IllegalArgumentException("Prefix is not specified after -p");
                     }
                     prefix = args[i + 1];
+                    i++;
                     break;
                 case "-a":
                     shouldAppend = true;

@@ -1,9 +1,9 @@
 package ru.shift.filterutility.service;
 
+import ru.shift.filterutility.exception.NoInputFilesException;
 import ru.shift.filterutility.model.DataStats;
 import ru.shift.filterutility.config.Config;
 import ru.shift.filterutility.model.DataType;
-import ru.shift.filterutility.model.ExitCode;
 
 import java.io.*;
 import java.util.*;
@@ -15,13 +15,13 @@ import java.util.*;
  * @author Semen Dutkin s.dutkin@g.nsu.ru
  */
 public class FilterUtility {
-    private Config config = new Config();
+    private static final String integerFileName = "integers.txt";
+    private static final String floatFileName = "floats.txt";
+    private static final String stringFileName = "strings.txt";
 
+    private final Config config = new Config();
 
-
-    public void filter(String[] args) {
-        configure(args);
-
+    public void filter() throws NoInputFilesException {
         List<BufferedReader> inputFiles = new ArrayList<>();
         for(String path : config.getInputFileNames()) {
             try {
@@ -30,47 +30,48 @@ public class FilterUtility {
                 System.err.println("Couldn't open input file: " + e.getMessage());
             }
         }
-        String line;
 
-        Map<DataType, FileWriter> writers = new HashMap<>();
+        if (inputFiles.isEmpty() ) {
+            throw new NoInputFilesException("Couldn't open any input file");
+        }
+
+        Map<DataType, FileWriter> writers = new EnumMap<>(DataType.class);
 
         Map<DataType, String> files = new HashMap<>();
 
-        files.put(DataType.INT, config.getOutputPath() + config.getPrefix() + "integers.txt");
-        files.put(DataType.FLOAT, config.getOutputPath() + config.getPrefix() + "floats.txt");
-        files.put(DataType.STRING, config.getOutputPath() + config.getPrefix() + "strings.txt");
+        files.put(DataType.INT, config.getOutputPath() + config.getPrefix() + integerFileName);
+        files.put(DataType.FLOAT, config.getOutputPath() + config.getPrefix() + floatFileName);
+        files.put(DataType.STRING, config.getOutputPath() + config.getPrefix() + stringFileName);
 
         DataStats stats = new DataStats();
 
-        while(!inputFiles.isEmpty()) {
-            Iterator<BufferedReader> iterator = inputFiles.iterator();
-            while(iterator.hasNext()) {
-                BufferedReader reader = iterator.next();
-                try {
-                    line = reader.readLine();
-                    if(line != null) {
-                        DataType type = DataInterpriter.getType(line);
-                        if(writers.get(type) != null) {
-                            writers.get(type).write(line + "\n");
-                            stats.add(type, line);
+        for (BufferedReader reader : inputFiles) {
+            try (reader) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    DataType type = DataInterpriter.getType(line);
+
+                    FileWriter writer = writers.computeIfAbsent(type, t -> {
+                        try {
+                            return new FileWriter(files.get(t), config.getShouldAppend());
+                        } catch (IOException e) {
+                            System.err.println("Failed to create writer for " + t.name() + ": " + e.getMessage());
+                            return null;
                         }
-                        else {
-                            try {
-                                writers.put(type, new FileWriter(files.get(type), config.getShouldAppend()));
-                                writers.get(type).write(line + "\n");
-                                stats.add(type, line);
-                            } catch (IOException e) {
-                                System.err.println("Problem with creating output file: " + e.getMessage());
-                            }
-                        }
+                    });
+
+                    if (writer != null) {
+                        writer.write(line + "\n");
                     }
-                    else {
-                        reader.close();
-                        iterator.remove();
+
+                    try {
+                        stats.add(type, line);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Couldn't parse line " + line + " to " + type.name() + ".");
                     }
-                } catch (IOException e) {
-                    System.err.println("Couldn't read line from input file: " + e.getMessage());
                 }
+            } catch (IOException e) {
+                System.err.println("Couldn't read line from input file: " + e.getMessage());
             }
         }
 
@@ -88,24 +89,21 @@ public class FilterUtility {
         }
     }
 
-    private void configure(String[] args) {
+    public void configure(String[] args) throws IllegalArgumentException, NoInputFilesException {
         try {
             config.parseArgs(args);
         } catch (IllegalArgumentException e) {
-            System.err.println("Couldn't parse arguments, error occurred:" + e.getMessage());
-            printUsage();
-            System.exit(ExitCode.BAD_ARGS);
+            throw new IllegalArgumentException("Couldn't parse arguments, error occurred", e);
         }
-
     }
 
-    private static void printUsage() {
+    public static void printUsage() {
         System.out.println("Использование: java -jar FilterUtility.jar [опции] inputFile1 inputFile2 ...");
         System.out.println("Опции:");
-        System.out.println("    -o <output_dir>     задаёт папку для результатов (по умолчанию текущая папка)");
-        System.out.println("    -p <prefix>         задаёт префикс для имён выходных файлов");
-        System.out.println("    -a                  режим добавления в существующие файлы");
-        System.out.println("    -s                  краткая статистика (только количество)");
-        System.out.println("    -f                  полная статистика (для чисел: min, max, сумма, среднее; для строк: длины минимальной и максимальной строк)");
+        System.out.println("\t-o <output_dir>     задаёт папку для результатов (по умолчанию текущая папка)");
+        System.out.println("\t-p <prefix>         задаёт префикс для имён выходных файлов");
+        System.out.println("\t-a                  режим добавления в существующие файлы");
+        System.out.println("\t-s                  краткая статистика (только количество)");
+        System.out.println("\t-f                  полная статистика (для чисел: min, max, сумма, среднее; для строк: длины минимальной и максимальной строк)");
     }
 }

@@ -49,7 +49,7 @@ public class Config {
                     if(i+1 > args.length) {
                         throw new IllegalArgumentException("Path is not specified after -o");
                     }
-                    outputPath = "." + args[i + 1] + "/";
+                    outputPath = args[i + 1] + "/";
                     i++;
                     break;
                 case "-p":

@@ -1,5 +1,6 @@
 package ru.shift.filterutility.config;
 
+import org.junit.Before;
 import org.junit.Test;
 import ru.shift.filterutility.exception.NoInputFilesException;
 
@@ -9,6 +10,7 @@ public class ConfigTest {
 
     private Config config;
 
+    @Before
     public void setUp() {
         config = new Config();
     }

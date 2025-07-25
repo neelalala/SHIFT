@@ -7,38 +7,38 @@ public class DataStats {
     private int stringCount;
 
     // Full stats
-    private long intMin;
-    private long intMax;
-    private long intSum;
-    private double intAvg;
+    private Long intMin;
+    private Long intMax;
+    private Long intSum;
+    private Double intAvg;
 
-    private double floatMin;
-    private double floatMax;
-    private double floatSum;
-    private double floatAvg;
+    private Double floatMin;
+    private Double floatMax;
+    private Double floatSum;
+    private Double floatAvg;
 
-    private int stringLengthMin;
-    private int stringLengthMax;
+    private Integer stringLengthMin;
+    private Integer stringLengthMax;
 
     public DataStats() {
         intCount = 0;
-        intMin = Long.MAX_VALUE;
-        intMax = Long.MIN_VALUE;
-        intSum = 0;
-        intAvg = 0;
+        intMin = null;
+        intMax = null;
+        intSum = 0L;
+        intAvg = 0D;
 
         floatCount = 0;
-        floatMin = Double.MAX_VALUE;
-        floatMax = Double.MIN_VALUE;
-        floatSum = 0;
-        floatAvg = 0;
+        floatMin = null;
+        floatMax = null;
+        floatSum = 0D;
+        floatAvg = 0D;
 
         stringCount = 0;
-        stringLengthMin = Integer.MAX_VALUE;
-        stringLengthMax = Integer.MIN_VALUE;
+        stringLengthMin = null;
+        stringLengthMax = null;
     }
 
-    public void add(DataType type, String string) {
+    public void add(DataType type, String string) throws NumberFormatException {
         switch (type) {
             case INT:
                 long intVal = Long.parseLong(string);
@@ -54,8 +54,12 @@ public class DataStats {
         }
     }
 
-    public void addInt(long value) {
+    private void addInt(long value) {
         intCount++;
+
+        if (intMin == null) intMin = value;
+        if (intMax == null) intMax = value;
+
         if (value < intMin) {
             intMin = value;
         }
@@ -67,8 +71,12 @@ public class DataStats {
         intAvg = (double) intSum / intCount;
     }
 
-    public void addFloat(double value) {
+    private void addFloat(double value) {
         floatCount++;
+
+        if (floatMin == null) floatMin = value;
+        if (floatMax == null) floatMax = value;
+
         if (value < floatMin) {
             floatMin = value;
         }
@@ -80,13 +88,19 @@ public class DataStats {
         floatAvg = floatSum / floatCount;
     }
 
-    public void addString(String value) {
+    private void addString(String value) {
         stringCount++;
-        if (value.length() < stringLengthMin) {
-            stringLengthMin = value.length();
+
+        int len = value.length();
+
+        if (stringLengthMin == null) stringLengthMin = len;
+        if (stringLengthMax == null) stringLengthMax = len;
+
+        if (len < stringLengthMin) {
+            stringLengthMin = len;
         }
-        if (value.length() > stringLengthMax) {
-            stringLengthMax = value.length();
+        if (len > stringLengthMax) {
+            stringLengthMax = len;
         }
     }
 
